@@ -2,7 +2,7 @@ use std::fs;
 
 fn main() {
     let contents =
-        fs::read_to_string("./input.txt").expect("Should have been able to read the file");
+        fs::read_to_string("./input.txt").expect("Could not read input.txt");
 
     let lines: Vec<&str> = contents.split('\n').collect();
     let mut max_calories = 0;
