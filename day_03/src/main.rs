@@ -27,4 +27,25 @@ fn main() {
         }
     }
     println!("{sum}");
+    sum = 0;
+    let number_of_lines = lines.len() - 1;
+    let mut lines_consumed = 0;
+    while lines_consumed < number_of_lines {
+        let group_of_rucksacks = lines.get(lines_consumed..lines_consumed+3).unwrap();
+        let rucksack_1: HashSet<char> = group_of_rucksacks[0].chars().collect();
+        let rucksack_2: HashSet<char> = group_of_rucksacks[1].chars().collect();
+        let rucksack_3: HashSet<char> = group_of_rucksacks[2].chars().collect();
+        let intersection: HashSet<_> = rucksack_1.intersection(&rucksack_2).copied().collect();
+        let intersection1: HashSet<_> = intersection.intersection(&rucksack_3).copied().collect();
+        let found = intersection1.iter().next().unwrap();
+        lines_consumed += 3;
+        if found.is_uppercase() {
+            let upper_case_letter_number = *found as u32;
+            sum += upper_case_letter_number - 38;
+        } else {
+            let lower_case_letter_number = *found as u32;
+            sum += lower_case_letter_number - 96;
+        }
+    }
+    println!("{sum}");
 }
