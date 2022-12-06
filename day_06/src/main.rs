@@ -6,14 +6,14 @@ fn main() {
     let lines: Vec<&str> = contents.split('\n').filter(|line| line.len() > 0).collect();
     let &line = lines.get(0).unwrap();
     let mut index = 0;
-    while index < &line.len() - 5 {
-        let marker = &line[index..index + 4];
+    while index < &line.len() - 15 {
+        let marker = &line[index..index + 14];
         println!("{marker}");
         let chars: HashSet<char> = marker.chars().collect();
-        if chars.len() == 4 {
+        if chars.len() == 14 {
             break;
         }
         index += 1;
     }
-    println!("{}", index + 4) ;
+    println!("{}", index + 14) ;
 }
