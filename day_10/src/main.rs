@@ -10,7 +10,6 @@ fn main() {
     let mut signal = 0;
     for line in lines {
         if line == "noop" {
-            println!("During {}, {}, ({})", ticks, line, x);
             if ticks == 20
                 || ticks == 60
                 || ticks == 100
@@ -20,9 +19,9 @@ fn main() {
             {
                 signal += x * ticks;
             }
+            print(x, ticks);
             ticks += 1;
         } else if line.starts_with("addx ") {
-            println!("During {}, {}, ({})", ticks, line, x);
             if ticks == 20
                 || ticks == 60
                 || ticks == 100
@@ -32,8 +31,8 @@ fn main() {
             {
                 signal += x * ticks;
             }
+            print(x, ticks);
             ticks += 1;
-            println!("During {}, {}, ({})", ticks, line, x);
             if ticks == 20
                 || ticks == 60
                 || ticks == 100
@@ -43,6 +42,7 @@ fn main() {
             {
                 signal += x * ticks;
             }
+            print(x, ticks);
             ticks += 1;
             let num: i32 = match line[5..].parse() {
                 Ok(n) => n,
@@ -54,5 +54,19 @@ fn main() {
         }
     }
 
+    println!("");
     println!("Signal: {}", signal);
+}
+
+fn print(x: i32, ticks: i32) {
+    let row = (ticks-1) / 40;
+    let tick_per_row = ticks - row * 40;
+    if tick_per_row >= x && tick_per_row <= x+2 {
+        print!("#");
+    } else {
+        print!(".")
+    }
+    if ticks % 40 == 0 {
+        print!("\n");
+    }
 }
