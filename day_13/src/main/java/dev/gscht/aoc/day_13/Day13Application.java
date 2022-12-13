@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Stack;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,7 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class Day13Application {
 
   public static void main(String[] args) throws IOException {
-    var input = Files.readAllLines(Path.of("./input-test.txt"));
+    var input = Files.readAllLines(Path.of("./input.txt"));
     // input.forEach(System.out::println);
     // System.out.println("------------------------------");
     int index = 0;
@@ -39,10 +40,41 @@ public class Day13Application {
     }
     System.out.println("Sum: %d".formatted(sum));
 
-    input = Files.readAllLines(Path.of("./input-test.txt"));
+    input = Files.readAllLines(Path.of("./input.txt"));
 
     input.add("[[2]]");
     input.add("[[6]]");
+
+    var parsedInput =
+        input.stream().filter(s -> s.length() > 0).map(Day13Application::parseLine).toList();
+
+    var sortedInput =
+        parsedInput.stream()
+            .sorted(
+                new Comparator<Object>() {
+
+                  @Override
+                  public int compare(Object o1, Object o2) {
+                    return -1 * Day13Application.compare(o1, o2);
+                  }
+                })
+            .toList();
+
+    int two = 0;
+    int six = 0;
+    System.out.println("Input size: %d".formatted(sortedInput.size()));
+    for (int i = 1; i <= sortedInput.size(); i++) {
+      if (sortedInput.get(i - 1).toString().equals("[[2]]")) {
+        two = i;
+      } else if (sortedInput.get(i - 1).toString().equals("[[6]]")) {
+        six = i;
+      }
+      if (two > 0 && six > 0) {
+        break;
+      }
+    }
+    // sortedInput.forEach(System.out::println);
+    System.out.println("Signal: %d".formatted(two * six));
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
