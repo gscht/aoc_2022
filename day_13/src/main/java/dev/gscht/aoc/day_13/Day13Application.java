@@ -13,25 +13,60 @@ public class Day13Application {
 
   public static void main(String[] args) throws IOException {
     var input = Files.readAllLines(Path.of("./input-test.txt"));
-    input.forEach(System.out::println);
-    System.out.println("------------------------------");
+    // input.forEach(System.out::println);
+    // System.out.println("------------------------------");
     int index = 0;
+    int sum = 0;
     while (!input.isEmpty()) {
       index++;
 
       var leftInput = input.remove(0);
       var leftSide = parseLine(leftInput);
-      System.out.println("%s".formatted(leftSide));
+      // System.out.println("%s".formatted(leftSide));
 
       var rightInput = input.remove(0);
       var rightSide = parseLine(rightInput);
-      System.out.println("%s".formatted(rightSide));
+      // System.out.println("%s".formatted(rightSide));
       System.out.println();
 
       if (input.size() > 0) input.remove(0);
-      if (index == 8) break;
+
+      System.out.print("Checking %s vs %s".formatted(leftSide.toString(), rightSide.toString()));
+      var ok = inputOk(leftSide, rightSide);
+      System.out.println(": " + ok);
+      if (ok) {
+        sum += index;
+      }
     }
-    System.out.println("Found %d pairs.".formatted(index));
+    System.out.println("Sum: %d".formatted(sum));
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private static boolean inputOk(List<Object> left, List<Object> right) {
+    var size = Math.min(left.size(), right.size());
+    var leftIsLarget = left.size() > right.size();
+    for (int i = 0; i < size; i++) {
+      var l = left.remove(0);
+      var r = right.remove(0);
+      if (l instanceof List && r instanceof List) {
+        return inputOk((List) l, (List) r);
+      } else if (l instanceof Integer && r instanceof List) {
+        return inputOk(new ArrayList(List.of(l)), (List) r);
+      } else if (l instanceof List && r instanceof Integer) {
+        return inputOk((List) l, new ArrayList(List.of(r)));
+      } else if (l instanceof Integer li && r instanceof Integer ri) {
+        if (li > ri) {
+          return false;
+        }
+      } else {
+        throw new IllegalStateException(
+            "Unkown left and right: " + left.getClass() + ", " + right.getClass());
+      }
+    }
+    if (leftIsLarget) {
+      return false;
+    }
+    return true;
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
