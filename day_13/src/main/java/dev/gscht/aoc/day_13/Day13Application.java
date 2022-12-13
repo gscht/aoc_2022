@@ -3,7 +3,6 @@ package dev.gscht.aoc.day_13;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -13,9 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class Day13Application {
 
   public static void main(String[] args) throws IOException {
-    var input = Files.readAllLines(Path.of("./input.txt"));
-    var output = Path.of("./output.txt");
-    Files.writeString(output, "", StandardOpenOption.TRUNCATE_EXISTING);
+    var input = Files.readAllLines(Path.of("./input-test.txt"));
     // input.forEach(System.out::println);
     // System.out.println("------------------------------");
     int index = 0;
@@ -25,61 +22,65 @@ public class Day13Application {
 
       var leftInput = input.remove(0);
       var leftSide = parseLine(leftInput);
-      Files.writeString(output, leftSide.toString().replace(", ", ",") + "\n", StandardOpenOption.APPEND);
       // System.out.println("%s".formatted(leftSide));
 
       var rightInput = input.remove(0);
       var rightSide = parseLine(rightInput);
-      Files.writeString(output, rightSide.toString().replace(", ", ",") + "\n" , StandardOpenOption.APPEND);
       // System.out.println("%s".formatted(rightSide));
-      System.out.println();
 
       if (input.size() > 0) {
         input.remove(0);
-        Files.writeString(output, "\n", StandardOpenOption.APPEND);
       }
 
-      System.out.print("Checking %s vs %s".formatted(leftSide.toString(), rightSide.toString()));
-      var ok = inputOk(leftSide, rightSide);
-      System.out.println(": " + ok);
-      if (ok) {
+      var ok = compare(leftSide, rightSide);
+      if (ok == 1) {
         sum += index;
       }
     }
     System.out.println("Sum: %d".formatted(sum));
+
+    input = Files.readAllLines(Path.of("./input-test.txt"));
+
+    input.add("[[2]]");
+    input.add("[[6]]");
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private static boolean inputOk(List<Object> left, List<Object> right) {
-    var leftInteger = left.stream().filter(o -> o instanceof Integer).count();
-    var rightInteger = right.stream().filter(o -> o instanceof Integer).count();
-
-    var allIntegers = leftInteger == left.size() && rightInteger == right.size();
-
-    var size = Math.min(left.size(), right.size());
-    var leftIsLarger = left.size() > right.size();
-    for (int i = 0; i < size; i++) {
-      var l = left.remove(0);
-      var r = right.remove(0);
-      if (l instanceof List && r instanceof List) {
-        return inputOk((List) l, (List) r);
-      } else if (l instanceof Integer && r instanceof List) {
-        return inputOk(new ArrayList(List.of(l)), (List) r);
-      } else if (l instanceof List && r instanceof Integer) {
-        return inputOk((List) l, new ArrayList(List.of(r)));
-      } else if (l instanceof Integer li && r instanceof Integer ri) {
-        if (li > ri) {
-          return false;
-        }
-      } else {
-        throw new IllegalStateException(
-            "Unkown left and right: " + left.getClass() + ", " + right.getClass());
+  private static int compare(Object left, Object right) {
+    if (left instanceof Integer l && right instanceof Integer r) {
+      if (l == r) {
+        return 0;
       }
+      if (l < r) {
+        return 1;
+      }
+      return -1;
     }
-    if (!left.isEmpty()) {
-      return false;
+
+    if (left instanceof Integer && right instanceof List) {
+      left = new ArrayList(List.of(left));
+    } else if (left instanceof List && right instanceof Integer) {
+      right = new ArrayList(List.of(right));
     }
-    return true;
+
+    if (left instanceof List l && right instanceof List r) {
+      var size = Math.min(l.size(), r.size());
+      for (var i = 0; i < size; i++) {
+        var result = compare(l.get(i), r.get(i));
+        if (result != 0) {
+          return result;
+        }
+      }
+
+      if (size == l.size()) {
+        if (l.size() == r.size()) {
+          return 0;
+        }
+        return 1;
+      }
+      return -1;
+    }
+    throw new IllegalStateException();
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
