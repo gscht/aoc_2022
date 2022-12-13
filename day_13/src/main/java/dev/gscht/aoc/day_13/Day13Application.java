@@ -12,7 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class Day13Application {
 
   public static void main(String[] args) throws IOException {
-    var input = Files.readAllLines(Path.of("./input-test.txt"));
+    var input = Files.readAllLines(Path.of("./input.txt"));
     // input.forEach(System.out::println);
     // System.out.println("------------------------------");
     int index = 0;
@@ -43,8 +43,13 @@ public class Day13Application {
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   private static boolean inputOk(List<Object> left, List<Object> right) {
+    var leftInteger = left.stream().filter(o -> o instanceof Integer).count();
+    var rightInteger = right.stream().filter(o -> o instanceof Integer).count();
+
+    var allIntegers = leftInteger == left.size() && rightInteger == right.size();
+    
     var size = Math.min(left.size(), right.size());
-    var leftIsLarget = left.size() > right.size();
+    var leftIsLarger = left.size() > right.size();
     for (int i = 0; i < size; i++) {
       var l = left.remove(0);
       var r = right.remove(0);
@@ -63,7 +68,7 @@ public class Day13Application {
             "Unkown left and right: " + left.getClass() + ", " + right.getClass());
       }
     }
-    if (leftIsLarget) {
+    if (!left.isEmpty()) {
       return false;
     }
     return true;
