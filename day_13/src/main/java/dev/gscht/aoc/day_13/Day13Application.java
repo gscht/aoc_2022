@@ -3,6 +3,7 @@ package dev.gscht.aoc.day_13;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -13,6 +14,8 @@ public class Day13Application {
 
   public static void main(String[] args) throws IOException {
     var input = Files.readAllLines(Path.of("./input.txt"));
+    var output = Path.of("./output.txt");
+    Files.writeString(output, "", StandardOpenOption.TRUNCATE_EXISTING);
     // input.forEach(System.out::println);
     // System.out.println("------------------------------");
     int index = 0;
@@ -22,14 +25,19 @@ public class Day13Application {
 
       var leftInput = input.remove(0);
       var leftSide = parseLine(leftInput);
+      Files.writeString(output, leftSide.toString().replace(", ", ",") + "\n", StandardOpenOption.APPEND);
       // System.out.println("%s".formatted(leftSide));
 
       var rightInput = input.remove(0);
       var rightSide = parseLine(rightInput);
+      Files.writeString(output, rightSide.toString().replace(", ", ",") + "\n" , StandardOpenOption.APPEND);
       // System.out.println("%s".formatted(rightSide));
       System.out.println();
 
-      if (input.size() > 0) input.remove(0);
+      if (input.size() > 0) {
+        input.remove(0);
+        Files.writeString(output, "\n", StandardOpenOption.APPEND);
+      }
 
       System.out.print("Checking %s vs %s".formatted(leftSide.toString(), rightSide.toString()));
       var ok = inputOk(leftSide, rightSide);
@@ -47,7 +55,7 @@ public class Day13Application {
     var rightInteger = right.stream().filter(o -> o instanceof Integer).count();
 
     var allIntegers = leftInteger == left.size() && rightInteger == right.size();
-    
+
     var size = Math.min(left.size(), right.size());
     var leftIsLarger = left.size() > right.size();
     for (int i = 0; i < size; i++) {
