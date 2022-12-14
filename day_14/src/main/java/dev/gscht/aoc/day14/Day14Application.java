@@ -22,6 +22,8 @@ public class Day14Application {
       }
     }
     
+    rows += 2;
+    cols += 100_000;
 
     var cave = new char[rows + 1][cols + 1];
     for (var row = 0; row < cave.length; row++) {
@@ -68,6 +70,18 @@ public class Day14Application {
       }
     }
 
+    for (var c = 0; c <= cols; c++) {
+      cave[rows][c] = '#';
+    }
+
+/*
+    for (var r = 0; r <= rows; r++) {
+      for (var c = 490; c <= 510; c++) {
+        System.out.print(cave[r][c]);
+      }
+      System.out.println();
+    }
+*/
 
     int sandCount = 0;
     int finalRow = 0;
@@ -77,7 +91,7 @@ public class Day14Application {
       finalRow = dropSand(0, 500, cave);
     } while (finalRow != -1);
 
-    System.out.println("%d sands dropped.".formatted(sandCount-1));
+    System.out.println("%d sands dropped.".formatted(sandCount));
   }
 
   private static int dropSand(int row, int col, char[][] cave) {
@@ -98,6 +112,9 @@ public class Day14Application {
       return dropSand(row, col, cave);
     }
     cave[row][col] = 'o';
+    if (row == 0 && col == 500) {
+      return -1;
+    }
     return row;
   }
 }
