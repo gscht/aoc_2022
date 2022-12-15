@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Point {
+public class Point implements Comparable<Point>{
   private int signalX;
   private int signalY;
   private int beaconX;
@@ -25,6 +25,10 @@ public class Point {
 
   public String toString() {
     return "%d/%d %d/%d (%d)".formatted(signalX, signalY, beaconX, beaconY, distance());
+  }
+
+  public boolean contains(int x, int y) {
+    return distance >= distance(x, y, signalX, signalY);
   }
 
 
@@ -50,5 +54,11 @@ public class Point {
 
   private int distance(int x1, int y1, int x2, int y2) {
     return Math.abs(x1 - x2) + Math.abs(y1 - y2);
+  }
+
+
+  @Override
+  public int compareTo(Point o) {
+    return Integer.compare(signalX, o.signalX);
   }
 }
