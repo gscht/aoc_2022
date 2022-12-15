@@ -12,13 +12,32 @@ public class Point {
   private int signalY;
   private int beaconX;
   private int beaconY;
+  private int distance;
+
+  public Point(int sx, int sy, int bx, int by) {
+    signalX = sx;
+    signalY = sy;
+    beaconX = bx;
+    beaconY = by;
+    distance = distance();
+  }
+
+
+  public String toString() {
+    return "%d/%d %d/%d (%d)".formatted(signalX, signalY, beaconX, beaconY, distance());
+  }
+
 
   public int distance() {
     return distance(signalX, signalY, beaconX, beaconY);
   }
 
   public boolean inReach(int x, int y) {
-    return distance(x, y, signalX, signalY) <= distance();
+    return distance(x, y, signalX, signalY) <= distance;
+  }
+
+  public boolean inReachOfBeacon(int x, int y) {
+    return distance(x, y, beaconX, beaconY) <= distance;
   }
 
   public boolean isSignalAt(int x, int y) {

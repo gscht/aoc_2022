@@ -45,12 +45,14 @@ class Day15 implements CommandLineRunner {
     }
 
     System.out.println("%d/%d %d/%d".formatted(minX, minY, maxX, maxY));
-    var y = 2000000;
+    var rowToInspect = 2_000_000;
     var counter = 0;
     for (int x = minX; x <= maxX; x++) {
       var inReach = false;
       for (var p : list) {
-        if (p.inReach(x, y) && !p.isSignalAt(x, y) && !p.isBeaconAt(x, y)) {
+        if (p.inReach(x, rowToInspect)
+            && !p.isSignalAt(x, rowToInspect)
+            && !p.isBeaconAt(x, rowToInspect)) {
           inReach = true;
           break;
         }
@@ -60,5 +62,23 @@ class Day15 implements CommandLineRunner {
       }
     }
     System.out.println("%d positions where beacon cannot be.".formatted(counter));
+
+    maxX = 4_000_000;
+    maxY = 4_000_000;
+
+    for (int x = 0; x <= maxX; x++) {
+      for (int y = 0; y <= maxY; y++) {
+        var inReach = false;
+        for (var p : list) {
+            if (p.inReach(x, y) || p.isSignalAt(x, y) || p.isBeaconAt(x, y)) {
+              inReach |= true;
+            }
+        }
+        if (!inReach) {
+          System.out.println("%d %d is not in reach.".formatted(x, y));
+          System.exit(0);
+        }
+      }
+    }
   }
 }
