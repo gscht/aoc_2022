@@ -3,9 +3,10 @@ package dev.gscht.aoc.day_18;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 class Day18 implements ApplicationRunner {
 
+  private final List<Point> points = new ArrayList<>();
   private int minX;
   private int minY;
   private int minZ;
@@ -21,10 +23,11 @@ class Day18 implements ApplicationRunner {
   private int maxY;
   private int maxZ;
 
+  private final Map<Point, Boolean> pointsCache = new HashMap<>();
+
   @Override
   public void run(ApplicationArguments args) throws Exception {
     var lines = Files.readAllLines(Path.of("./input.txt"));
-    List<Point> points = new ArrayList<Point>(lines.size());
     minX = Integer.MAX_VALUE;
     minY = Integer.MAX_VALUE;
     minZ = Integer.MAX_VALUE;
@@ -46,6 +49,7 @@ class Day18 implements ApplicationRunner {
 
       points.add(point);
     }
+    System.out.println("%d/%d/%d %d/%d/%d".formatted(minX, minY, minZ, maxX, maxY, maxZ));
 
     var totalSidesVisible = 0;
     for (var p : points) {
@@ -62,73 +66,99 @@ class Day18 implements ApplicationRunner {
     }
     System.out.println("There are %d sides visible".formatted(totalSidesVisible));
 
-    var pockets = new ArrayList<Point>();
-    for (var x = minX; x <= maxX; x++) {
-      for (var y = minY; y <= maxY; y++) {
-        for (var z = minZ; z <= maxZ; z++) {
-          var pocket = new Point(x, y, z);
-          if (points.contains(pocket)) {
-            continue;
-          }
-          var c = 0;
-          for (int i = 1; i <= 6; i++) {
-            if (reachesRock(points, pocket, i)) {
-              c++;
-            }
-          }
-          if (c == 6 && !pockets.contains(pocket)) {
-            pockets.add(pocket);
-          }
-        }
-      }
-    }
-
-    System.out.println("Found %d pockets.".formatted(pockets.size()));
-
-    while (!pockets.isEmpty()) {
-      var pocket = pockets.remove(0);
-      if (pocket.x < minX
-          || pocket.x > maxX
-          || pocket.y < minY
-          || pocket.y > maxY
-          || pocket.z < minZ
-          || pocket.z > maxZ) {
-        continue;
-      }
-      if (points.contains(pocket)) {
-        continue;
-      }
-      if (!points.contains(pocket)) {
-        points.add(pocket);
-      }
-
-      pockets.add(new Point(pocket.x - 1, pocket.y, pocket.z));
-      pockets.add(new Point(pocket.x + 1, pocket.y, pocket.z));
-      pockets.add(new Point(pocket.x, pocket.y - 1, pocket.z));
-      pockets.add(new Point(pocket.x, pocket.y + 1, pocket.z));
-      pockets.add(new Point(pocket.x, pocket.y, pocket.z - 1));
-      pockets.add(new Point(pocket.x, pocket.y, pocket.z + 1));
-    }
-
-    // 3254 too high
-    // 2324 too high
-    totalSidesVisible = 0;
+    var visible = 0;
+var numberOfPoints = points.size();
     for (var p : points) {
-      var sidesVisible = 6;
-      for (var n : points) {
-        if (n.equals(p)) {
-          continue;
-        }
-        if (n.touches(p)) {
-          sidesVisible--;
-        }
+      System.out.println("Checking point %s".formatted(p));
+      var check = new Point(p).left();
+      var result = expose(check);
+      pointsCache.put(check, result);
+      if (result) {
+        visible++;
       }
-      totalSidesVisible += sidesVisible;
+
+      check = new Point(p).right();
+      result = expose(check);
+      pointsCache.put(check, result);
+      if (result) {
+        visible++;
+      }
+
+      check = new Point(p).up();
+      result = expose(check);
+      pointsCache.put(check, result);
+      if (result) {
+        visible++;
+      }
+      check = new Point(p).down();
+      result = expose(check);
+      pointsCache.put(check, result);
+      if (result) {
+        visible++;
+      }
+      check = new Point(p).backwards();
+      result = expose(check);
+      pointsCache.put(check, result);
+      if (result) {
+        visible++;
+      }
+      check = new Point(p).forward();
+      result = expose(check);
+      pointsCache.put(check, result);
+      if (result) {
+        visible++;
+      }
+      numberOfPoints--;
+      System.out.println("%d points left".formatted(numberOfPoints));
     }
-    System.out.println("There are %d sides visible".formatted(totalSidesVisible));
+
+    System.out.println("There are %d sides visible".formatted(visible));
   }
 
-  private boolean canReachOutside(Collection<Point> points, Point p) {
+  private boolean expose(Point p) {
+    Boolean result = pointsCache.get(p);
+    if (result != null) {
+      return result;
+    }
+    if (points.contains(p)) {
+      return false;
+    }
+
+    var stack = new Stack<Point>();
+    stack.push(p);
+    var seen = new HashSet<String>();
+
+    while (!stack.isEmpty()) {
+      var pop = stack.pop();
+      var x = pop.x;
+      var y = pop.y;
+      var z = pop.z;
+      if (points.contains(pop)) {
+        continue;
+      }
+      if (x <= minX
+          || x >= maxX
+          || y <= minY
+          || y >= maxY
+          || z <= minZ
+          || z >= maxZ) {
+        return true;
+      }
+      if (seen.contains(pop.toString())) {
+        continue;
+      }
+      seen.add(pop.toString());
+      stack.push(new Point(pop).left());
+      stack.push(new Point(pop).right());
+      stack.push(new Point(pop).up());
+      stack.push(new Point(pop).down());
+      stack.push(new Point(pop).backwards());
+      stack.push(new Point(pop).forward());
+    }
+    return false;
+  }
+
+  private boolean canReachOutside(Point p) {
     if (points.contains(p)) {
       return false;
     }
@@ -164,7 +194,7 @@ class Day18 implements ApplicationRunner {
     return false;
   }
 
-  private boolean reachesRock(Collection<Point> points, Point p, int direction) {
+  private boolean reachesRock(Point p, int direction) {
     if (direction == 1) {
       for (var x = p.x - 1; x >= 0; x--) {
         var n = new Point(x, p.y, p.z);

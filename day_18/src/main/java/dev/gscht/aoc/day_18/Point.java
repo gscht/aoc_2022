@@ -24,6 +24,41 @@ class Point {
     return xTouching > 0 || yTouching > 0 || zTouching > 0;
   }
 
+  public Point(Point p) {
+    this.x = p.x;
+    this.y = p.y;
+    this.z = p.z;
+  }
+
+  public Point left(){
+    x--;
+    return this;
+  }
+  public Point right() {
+    x++;
+    return this;
+  }
+  public Point up() {
+    y++;
+    return this;
+    
+  }
+  
+  public Point down() {
+    y--;
+    return this;
+  }
+
+  public Point backwards() {
+    z++;
+    return this;
+  }
+
+  public Point forward() {
+    z--;
+    return this;
+  }
+
   public String toString() {
     return x + "/" + y + "/" + z;
   }
