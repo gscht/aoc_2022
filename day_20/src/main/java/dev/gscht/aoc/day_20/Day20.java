@@ -19,10 +19,12 @@ class Day20 implements ApplicationRunner {
     var index = new AtomicInteger();
     List<Tuple> initialNumbers =
         Files.readAllLines(Path.of("./input.txt")).stream()
-            .map(Integer::parseInt)
+            .map(Long::parseLong)
+            //        .map(n -> n * 811589153)
             .map(number -> new Tuple(number, index.getAndIncrement()))
             .collect(Collectors.toList());
 
+    // System.out.println("%s".formatted(initialNumbers));
     for (int i = 0; i < initialNumbers.size(); i++) {
       var actualIndex = 0;
       for (int j = 0; j < initialNumbers.size(); j++) {
@@ -35,25 +37,9 @@ class Day20 implements ApplicationRunner {
       if (rotate < 0) {
         rotate = initialNumbers.size() + rotate - 1;
       }
+
       rotate(initialNumbers, actualIndex, rotate);
     }
-    /*
-    1, 2, -3, 3, -2, 0, 4
-
-    2, 1, -3, 3, -2, 0, 4
-
-    1, -3, 2, 3, -2, 0, 4
-
-    1, 2, 3, -2, -3, 0, 4
-
-    1, 2, -2, -3, 0, 3, 4
-
-    1, 2, -3, 0, 3, 4, -2
-
-    1, 2, -3, 0, 3, 4, -2
-
-    1, 2, -3, 4, 0, 3, -2
-        */
     var indexOfZero = -1;
     for (int i = 0; i < initialNumbers.size(); i++) {
       if (initialNumbers.get(i).number == 0) {
@@ -61,6 +47,7 @@ class Day20 implements ApplicationRunner {
         break;
       }
     }
+    // System.out.println("%s".formatted(initialNumbers));
 
     var ans = 0;
     var offset = indexOfZero + 1000;
@@ -91,7 +78,7 @@ class Day20 implements ApplicationRunner {
     System.out.println("Answer: %d".formatted(ans));
   }
 
-  public void rotate(List<Tuple> list, int start, int amount) {
+  public void rotate(List<Tuple> list, int start, long amount) {
     var startAmount = amount;
     if (start < 0) {
       throw new IllegalStateException();
@@ -102,21 +89,16 @@ class Day20 implements ApplicationRunner {
     if (amount == 0) {
       return;
     }
-    if (amount > 0) {
-      while (amount >= list.size()) {
-        amount -= list.size();
-      }
-    } else {
-      while ((amount * -1) >= list.size()) {
-        amount += list.size();
-      }
+
+    if (Math.abs(amount) > list.size()) {
+      amount = amount % list.size();
     }
     var overflow = false;
-    if (start + amount >= list.size() || start + amount <= 0) {
+    if (start + amount + 1 >= list.size() || start + amount < 0) {
       overflow = true;
     }
     if (amount > 0 && overflow) {
-      amount = list.size() - amount -1;
+      amount = list.size() - amount - 1;
       amount *= -1;
     } else if (amount < 0 && overflow) {
       amount = list.size() + amount - 1;
@@ -127,13 +109,7 @@ class Day20 implements ApplicationRunner {
       }
     } else {
       for (int i = start; i > start + amount; i--) {
-        try {
         Collections.swap(list, i, i - 1);
-        } catch (IndexOutOfBoundsException ex) {
-          System.out.println("original amount was %d".formatted(startAmount));
-          System.out.println("new amount is %d".formatted(amount));
-          throw ex;
-        }
       }
     }
   }

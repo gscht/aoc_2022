@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 class Tuple {
-  int number;
+  long number;
   int index;
 
   public String toString() {
