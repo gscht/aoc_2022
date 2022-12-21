@@ -13,6 +13,7 @@ class Monkey {
   String operation;
   String waitLeft;
   String waitRight;
+  boolean match = false;
 
   public Monkey(String input) {
     name = input.split(": ")[0];
@@ -31,16 +32,18 @@ class Monkey {
       if (waitLeft != null || waitRight != null) {
         throw new IllegalStateException();
       }
-      result =
-          switch (operation) {
-            case "+" -> left + right;
-            case "-" -> left - right;
-            case "*" -> left * right;
-            case "/" -> left / right;
-            default -> throw new IllegalStateException();
-          };
-      left = null;
-      right = null;
+      if (operation == "=") {
+        match = left == right;
+      } else {
+        result =
+            switch (operation) {
+              case "+" -> left + right;
+              case "-" -> left - right;
+              case "*" -> left * right;
+              case "/" -> left / right;
+              default -> throw new IllegalStateException();
+            };
+      }
     }
   }
 }
