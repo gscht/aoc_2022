@@ -28,7 +28,7 @@ class Day22 implements ApplicationRunner {
         directions = line;
       }
     }
-    var pattern = Pattern.compile("(\\d{1,3})([LR]{0,1})");
+    var pattern = Pattern.compile("(\\d{1,3})([LR]?)");
     var matcher = pattern.matcher(directions);
     var rowIndex = 0;
     var colIndex = lines.get(0).indexOf('.');
@@ -65,7 +65,7 @@ class Day22 implements ApplicationRunner {
             newColIndex = colIndex - 1;
             if (newColIndex == -1 || line.charAt(newColIndex) == ' ') {
               if (side == 1) {
-                newRowIndex = 199 - (colIndex - 50);
+                newRowIndex = 149 - rowIndex;
                 newColIndex = 0;
               } else if (side == 3) {
                 newRowIndex = 100;
@@ -106,25 +106,30 @@ class Day22 implements ApplicationRunner {
             }
           }
         }
-        try {
-          line = lines.get(newRowIndex);
-          var nextSymbol = line.charAt(newColIndex);
-          if (nextSymbol == '#') {
-            break;
-          } else if (nextSymbol != '.') {
-            throw new IllegalStateException("Stepped into the void");
-          }
-          var newSide = getSide(newRowIndex, newColIndex);
-          if (newSide != side) {
-            direction = correctDirection(side, newSide);
-          }
-          colIndex = newColIndex;
-          rowIndex = newRowIndex;
-          steps--;
-        } catch (RuntimeException ex) {
-          System.out.println("side %d, direction %s".formatted(side, direction));
-          throw ex;
+        line = lines.get(newRowIndex);
+        var nextSymbol = line.charAt(newColIndex);
+        if (nextSymbol == '#') {
+          break;
         }
+        var newSide = getSide(newRowIndex, newColIndex);
+        if (newSide != side) {
+          direction = correctDirection(side, newSide);
+          System.out.println(
+              "Changed side from %d to %d. New direction is %s. We are at %d %d. %d steps left"
+                  .formatted(side, newSide, direction, newRowIndex, newColIndex, steps - 1));
+          if (newRowIndex == 0
+              || newColIndex == 0
+              || newRowIndex % 50 == 0
+              || newColIndex % 50 == 0
+              || (newRowIndex + 1) % 50 == 0
+              || (newColIndex + 1) % 50 == 0) {
+          } else {
+            throw new IllegalStateException();
+          }
+        }
+        colIndex = newColIndex;
+        rowIndex = newRowIndex;
+        steps--;
       }
       // Time to turn
       switch (turning) {
