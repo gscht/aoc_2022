@@ -111,6 +111,8 @@ class Day22 implements ApplicationRunner {
           var nextSymbol = line.charAt(newColIndex);
           if (nextSymbol == '#') {
             break;
+          } else if (nextSymbol != '.') {
+            throw new IllegalStateException("Stepped into the void");
           }
           var newSide = getSide(newRowIndex, newColIndex);
           if (newSide != side) {
