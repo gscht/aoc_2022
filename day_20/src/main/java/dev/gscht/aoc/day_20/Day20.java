@@ -2,8 +2,10 @@ package dev.gscht.aoc.day_20;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import org.springframework.boot.ApplicationArguments;
@@ -13,8 +15,83 @@ import org.springframework.stereotype.Component;
 @Component
 class Day20 implements ApplicationRunner {
 
+  void solve(List<String> input) {
+    List<Num> file = new ArrayList<>();
+    for (int i = 0; i < input.size(); i++) file.add(new Num(input.get(i), i));
+
+    List<Num> output = mix(file, file);
+    var x = getAnswer(output);
+    System.out.println("%d".formatted(x));
+
+    for (Num num : file) num.value *= 811589153;
+
+    output = new ArrayList<>(file);
+    for (int i = 0; i < 10; i++) output = mix(file, output);
+    x = getAnswer(output);
+    System.out.println("%d".formatted(x));
+  }
+
+  public long getAnswer(List<Num> out) {
+    int zeroIndex = 0;
+    for (int i = 0; i < out.size(); i++) {
+      if (out.get(i).value == 0) {
+        zeroIndex = i;
+        break;
+      }
+    }
+
+    int thousandth = (zeroIndex + 1000) % out.size();
+    int twoThousandth = (zeroIndex + 2000) % out.size();
+    int threeThousandth = (zeroIndex + 3000) % out.size();
+    return out.get(thousandth).value
+        + out.get(twoThousandth).value
+        + out.get(threeThousandth).value;
+  }
+
+  public List<Num> mix(List<Num> ogFile, List<Num> toMix) {
+    List<Num> output = new ArrayList<>(toMix);
+
+    for (Num num : ogFile) {
+      int ogIndex = output.indexOf(num);
+      output.remove(num);
+      long newIndex = (ogIndex + num.value) % output.size();
+      if (newIndex < 0) newIndex = newIndex + output.size();
+      output.add((int) newIndex, num);
+    }
+    return output;
+  }
+
+  private static class Num {
+    public int index;
+    public long value;
+
+    public Num(String value, int index) {
+      this.value = Long.parseLong(value);
+      this.index = index;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      Num num = (Num) o;
+      return index == num.index && value == num.value;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(index, value);
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+  }
+
   @Override
   public void run(ApplicationArguments args) throws Exception {
+    solve(Files.readAllLines(Path.of("./input.txt")));
 
     var index = new AtomicInteger();
     List<Tuple> initialNumbers =
