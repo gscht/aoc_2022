@@ -28,7 +28,7 @@ class Day22 implements ApplicationRunner {
         directions = line;
       }
     }
-    var pattern = Pattern.compile("(\\d{1,3})([LR])");
+    var pattern = Pattern.compile("(\\d{1,3})([LR]{0,1})");
     var matcher = pattern.matcher(directions);
     var rowIndex = 0;
     var colIndex = lines.get(0).indexOf('.');
@@ -37,22 +37,21 @@ class Day22 implements ApplicationRunner {
       var steps = Integer.parseInt(matcher.group(1));
       var turning = matcher.group(2);
       System.out.println("%d%s".formatted(steps, turning));
-      var currentLine = lines.get(rowIndex);
       while (steps > 0) {
         var newColIndex = colIndex;
         var newRowIndex = rowIndex;
-        var newLine = lines.get(newRowIndex);
+        var line = lines.get(newRowIndex);
         switch (direction) {
           case right -> {
             newColIndex = colIndex + 1;
-            if (newColIndex == currentLine.length() || currentLine.charAt(newColIndex) == ' ') {
-              newColIndex = indexOfFirstSymbolInLine(currentLine);
+            if (newColIndex == line.length()) {
+              newColIndex = indexOfFirstSymbolInLine(line);
             }
           }
           case left -> {
             newColIndex = colIndex - 1;
-            if (newColIndex == -1 || currentLine.charAt(newColIndex) == ' ') {
-              newColIndex = currentLine.length() - 1;
+            if (newColIndex == -1 || line.charAt(newColIndex) == ' ') {
+              newColIndex = line.length() - 1;
             }
           }
           case up -> {
@@ -60,14 +59,14 @@ class Day22 implements ApplicationRunner {
             if (newRowIndex == -1) {
               newRowIndex = lines.size() - 1;
             }
-            newLine = lines.get(newRowIndex);
+            line = lines.get(newRowIndex);
 
-            while (!(newColIndex < newLine.length() && newLine.charAt(newColIndex) != ' ')) {
+            while (newColIndex >= line.length() || line.charAt(newColIndex) == ' ') {
               newRowIndex--;
               if (newRowIndex == -1) {
                 newRowIndex = lines.size() - 1;
               }
-              newLine = lines.get(newRowIndex);
+              line = lines.get(newRowIndex);
             }
           }
           case down -> {
@@ -75,21 +74,20 @@ class Day22 implements ApplicationRunner {
             if (newRowIndex == lines.size()) {
               newRowIndex = 0;
             }
-            newLine = lines.get(newRowIndex);
-            while (!(newColIndex < newLine.length() && newLine.charAt(newColIndex) != ' ')) {
+            line = lines.get(newRowIndex);
+            while (newColIndex >= line.length() || line.charAt(newColIndex) == ' ') {
               newRowIndex++;
               if (newRowIndex == lines.size()) {
                 newRowIndex = 0;
               }
-              newLine = lines.get(newRowIndex);
+              line = lines.get(newRowIndex);
             }
           }
         }
-        var nextSymbol = newLine.charAt(newColIndex);
+        var nextSymbol = line.charAt(newColIndex);
         if (nextSymbol == '#') {
           break;
         }
-        currentLine = newLine;
         colIndex = newColIndex;
         rowIndex = newRowIndex;
         steps--;
@@ -98,6 +96,7 @@ class Day22 implements ApplicationRunner {
       switch (turning) {
         case "L" -> direction = rotateL(direction);
         case "R" -> direction = rotateR(direction);
+        default -> {}
       }
       System.out.println("Now at %d %d facing %s".formatted(rowIndex, colIndex, direction));
     }
