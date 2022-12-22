@@ -13,7 +13,7 @@ class Day22 implements ApplicationRunner {
 
   @Override
   public void run(ApplicationArguments args) throws Exception {
-    var input = Files.readAllLines(Path.of("input-test.txt"));
+    var input = Files.readAllLines(Path.of("input.txt"));
     var lines = new ArrayList<String>();
     var directions = "";
     var mapDone = false;
@@ -61,7 +61,8 @@ class Day22 implements ApplicationRunner {
               newRowIndex = lines.size() - 1;
             }
             newLine = lines.get(newRowIndex);
-            while (newLine.length() >= newColIndex || newLine.charAt(newColIndex) == ' ') {
+
+            while (!(newColIndex < newLine.length() && newLine.charAt(newColIndex) != ' ')) {
               newRowIndex--;
               if (newRowIndex == -1) {
                 newRowIndex = lines.size() - 1;
@@ -75,7 +76,7 @@ class Day22 implements ApplicationRunner {
               newRowIndex = 0;
             }
             newLine = lines.get(newRowIndex);
-            while (newLine.length() <= newColIndex || newLine.charAt(newColIndex) == ' ') {
+            while (!(newColIndex < newLine.length() && newLine.charAt(newColIndex) != ' ')) {
               newRowIndex++;
               if (newRowIndex == lines.size()) {
                 newRowIndex = 0;
@@ -104,6 +105,7 @@ class Day22 implements ApplicationRunner {
 
     long ans = (rowIndex + 1L) * 1000 + (colIndex + 1) * 4 + direction.val;
     System.out.println("%d".formatted(ans));
+    // 123106 too hight
   }
 
   private int indexOfFirstSymbolInLine(String line) {
@@ -111,12 +113,6 @@ class Day22 implements ApplicationRunner {
     var firstTile = line.indexOf('.');
     var firstWall = line.indexOf('#');
     return firstTile < firstWall ? firstTile : firstWall;
-  }
-
-  private char firstSymbol(String line) {
-    var firstTile = line.indexOf('.');
-    var firstWall = line.indexOf('#');
-    return firstTile < firstWall ? '.' : '#';
   }
 
   private Direction rotateL(Direction d) {
@@ -161,7 +157,7 @@ class Day22 implements ApplicationRunner {
 
     int val;
 
-    Direction(int v ) {
+    Direction(int v) {
       this.val = v;
     }
   }
